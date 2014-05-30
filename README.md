@@ -8,7 +8,7 @@ Installation
 
 Add this to your settings.py of your Django project.
 
-..code-block::python
+.. code-block:: python
 
     REST_FRAMEWORK = {
         # Use hyperlinked styles by default.
