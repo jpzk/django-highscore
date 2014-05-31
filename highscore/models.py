@@ -16,7 +16,7 @@ class Registration(models.Model):
     password = models.CharField(max_length=30)
 
 class Highscore(models.Model):
-    pk = models.ForeignKey(User)
+    player = models.ForeignKey(User)
     score = models.IntegerField()
     updated = models.DateTimeField(auto_now_add=True)
 

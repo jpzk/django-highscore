@@ -31,7 +31,7 @@ class RegistrationView(APIView):
             u.save()
 
             # Setting the initial highscore to 0.
-            Highscore.objects.create(pk=u, score=0)
+            Highscore.objects.create(player=u, score=0)
 
             created = status.HTTP_201_CREATED
             return Response(serializer.data, status=created)
@@ -55,7 +55,7 @@ class UserHighscoreView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        highscore = Highscore.objects.get(pk=request.user.id)
+        highscore = Highscore.objects.get(player=request.user.id)
         serializer = HighscoreSerializer(highscore)
         return Response(serializer.data)
 
@@ -71,7 +71,7 @@ class UserMatchView(APIView):
         m.save()
 
         # Update the highscore, if score higher than highscore. 
-        highscore = Highscore.objects.get(pk=request.user.id)
+        highscore = Highscore.objects.get(player=request.user.id)
         if score > highscore.score:
             highscore.score = score
         highscore.save()
