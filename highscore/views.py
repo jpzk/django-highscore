@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
+from provider.oauth2.models import Client
 
 from rest_framework import viewsets
 from rest_framework.views import APIView
@@ -29,6 +30,12 @@ class RegistrationView(APIView):
             u = User.objects.create(username=data['username'])
             u.set_password(data['password'])
             u.save()
+
+            # Create OAuth2 client
+            name = u.username
+            client = Client(user=u, name=name, url='highscore://' + name,\
+                    client_id=name, client_secret='', client_type=1)
+            client.save()
 
             # Setting the initial highscore to 0.
             Highscore.objects.create(player=u, score=0)

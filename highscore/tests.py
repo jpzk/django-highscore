@@ -1,3 +1,5 @@
+import json
+
 from StringIO import StringIO
 
 from django.test import TestCase
@@ -23,12 +25,16 @@ class UserAPITestCase(APITestCase):
         return response
 
     def get_token(self, cred):
-        response = self.client.post('/api-auth-token/', cred)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue('token' in response.data)
-        token = response.data['token']
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token)
+        data = {'grant_type':'password', 'username':cred['username'],\
+        'password':cred['password'], 'client_id':cred['username']}
 
+        response = self.client.post('/oauth2/access_token', data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = json.loads(response.content)
+
+        self.assertTrue('access_token' in response_data)
+        token = response_data['access_token']
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
 class RegistrationTest(UserAPITestCase):
 
     def test_register(self):
@@ -36,7 +42,6 @@ class RegistrationTest(UserAPITestCase):
     
         response = self.register(self.user1)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
     def test_token(self):
         """ Register, get token """
 
