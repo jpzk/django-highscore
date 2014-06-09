@@ -9,6 +9,7 @@ from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 
+from highscore.errors import response, Error
 from highscore.models import Match, Highscore, Registration
 from highscore.serializers import HighscoreSerializer
 
@@ -35,6 +36,7 @@ class UserAPITestCase(APITestCase):
         self.assertTrue('access_token' in response_data)
         token = response_data['access_token']
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
 class RegistrationTest(UserAPITestCase):
 
     def test_register(self):
@@ -56,6 +58,16 @@ class RegistrationTest(UserAPITestCase):
         
         response = self.client.get('/user/')
         self.assertEqual(response.status_code, status.HTTP_200_OK) 
+
+class ErrorTest(UserAPITestCase):
+    def test_username_taken(self):
+        response1 = self.register(self.user1)
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        
+        response2 = self.register(self.user1)
+        self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
+        error_code = Error.USERNAME_TAKEN
+        self.assertEqual(response2.data['error'], str(error_code))
 
 class HighscoresTest(UserAPITestCase):
 

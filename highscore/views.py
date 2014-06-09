@@ -1,3 +1,4 @@
+from json import dumps
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from provider.oauth2.models import Client
@@ -8,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
+from highscore.errors import response, Error
 from highscore.models import Match, Highscore
 from highscore.serializers import HighscoreSerializer
 from highscore.serializers import RegistrationSerializer 
@@ -15,25 +17,32 @@ from highscore.serializers import MatchSerializer
 from highscore.serializers import UserSerializer, GroupSerializer
 from highscore.serializers import UserSingleSerializer
 
-# Anonymous Views
-
 class RegistrationView(APIView):
     """ Allow registration as anonymous user. """
         
     permission_classes = ()
     def post(self, request, format=None):
         serializer = RegistrationSerializer(data=request.DATA)
-        if serializer.is_valid():
+        bad_request = status.HTTP_400_BAD_REQUEST
 
-            # Create a user and set highscore to 0.
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=bad_request)
+        else:
             data = serializer.data
+            username = data['username']
+
+            # Check if unique
+            if User.objects.filter(username=username).exists():
+                return Response(response(Error.USERNAME_TAKEN), 
+                        bad_request)
+
             u = User.objects.create(username=data['username'])
             u.set_password(data['password'])
             u.save()
 
             # Create OAuth2 client
             name = u.username
-            client = Client(user=u, name=name, url='highscore://' + name,\
+            client = Client(user=u, name=name, url='' + name,\
                     client_id=name, client_secret='', client_type=1)
             client.save()
 
@@ -42,8 +51,6 @@ class RegistrationView(APIView):
 
             created = status.HTTP_201_CREATED
             return Response(serializer.data, status=created)
-        bad_request = status.HTTP_400_BAD_REQUEST
-        return Reponse(serializer.errors, status=bad_request)
 
 class HighscoreView(APIView):
     """ See the global highscore list """
