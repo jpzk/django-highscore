@@ -12,6 +12,7 @@ class Registration(models.Model):
 
 class Highscore(models.Model):
     player = models.ForeignKey(User)
+    player_name = models.CharField(max_length=30)
     score = models.IntegerField()
     updated = models.DateTimeField(auto_now_add=True)
 

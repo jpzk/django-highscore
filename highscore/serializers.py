@@ -20,6 +20,7 @@ class UserSingleSerializer(serializers.ModelSerializer):
 class HighscoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Highscore
+        fields = ('player_name', 'score',)
 
 class MatchSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,3 +29,4 @@ class MatchSerializer(serializers.ModelSerializer):
 class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Registration
+

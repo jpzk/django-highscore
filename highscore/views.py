@@ -1,5 +1,6 @@
-from json import dumps
+from math import ceil
 from django.shortcuts import render
+from django.http import HttpResponse
 from django.contrib.auth.models import User, Group
 from provider.oauth2.models import Client
 
@@ -47,17 +48,27 @@ class RegistrationView(APIView):
             client.save()
 
             # Setting the initial highscore to 0.
-            Highscore.objects.create(player=u, score=0)
+            Highscore.objects.create(player=u, player_name=u.username, score=0)
 
             created = status.HTTP_201_CREATED
             return Response(serializer.data, status=created)
 
-class HighscoreView(APIView):
-    """ See the global highscore list """
-    
+class HighscoreCountView(APIView):
     permission_classes = ()
     def get(self, request):
-        highscores = Highscore.objects.all()
+        count = Highscore.objects.count()
+        payload = {'count' : count,
+                   'pages' : int(ceil(count / 10.0))}
+        return Response(payload)
+
+class HighscorePagesView(APIView):
+    """ See the global highscore list in pages"""
+    
+    permission_classes = ()
+    def get(self, request, page):
+        start = 10 * int(page)
+        end = start + 10
+        highscores = Highscore.objects.order_by('score').reverse()[start:end]
         serializer = HighscoreSerializer(highscores, many=True)
         return Response(serializer.data)
 
@@ -108,6 +119,10 @@ class UserView(APIView):
         return Response(serializer.data)
 
 # Only for admins, under /data/
+
+class HighscoreViewSet(viewsets.ModelViewSet):
+    queryset = Highscore.objects.all()
+    serializer_class = HighscoreSerializer
 
 class MatchViewSet(viewsets.ModelViewSet):
     queryset = Match.objects.all()
