@@ -1,7 +1,7 @@
 django-highscore
 ================
 
-Simple Django REST JSON API for Highscores with OAuth2 authorization. Important: In production environment use HTTPS!
+**Simple Django REST JSON API for Highscores** with OAuth2 authorization. **Important**: In production environment use HTTPS!
 
 Examples
 ========
@@ -54,7 +54,6 @@ Add this to your settings.py of your Django project.
             ('rest_framework.authentication.OAuth2Authentication',
             'rest_framework.authentication.SessionAuthentication'),
 
-   
         # Use Django's standard `django.contrib.auth` permissions,
         # or allow read-only access for unauthenticated users.
         'DEFAULT_PERMISSION_CLASSES': 
