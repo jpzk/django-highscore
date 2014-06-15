@@ -82,7 +82,11 @@ class UserHighscoreView(APIView):
     def get(self, request):
         highscore = Highscore.objects.get(player=request.user.id)
         serializer = HighscoreSerializer(highscore)
-        return Response(serializer.data)
+
+        # Adding ranking to the data
+        resp_data = serializer.data
+        resp_data['rank'] = highscore.ranking() # TODO cache
+        return Response(resp_data)
 
 class UserMatchView(APIView):
     """ Matches """

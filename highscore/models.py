@@ -1,10 +1,6 @@
 from django.db import models
+from django.db.models import Count
 from django.contrib.auth.models import User
-
-from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from rest_framework.authtoken.models import Token
 
 class Registration(models.Model):
     username = models.CharField(max_length=30)
@@ -15,6 +11,10 @@ class Highscore(models.Model):
     player_name = models.CharField(max_length=30)
     score = models.IntegerField()
     updated = models.DateTimeField(auto_now_add=True)
+
+    def ranking(self):
+        rs = Highscore.objects.filter(score__gt=self.score)
+        return rs.aggregate(ranking=Count('score'))['ranking'] + 1
 
 class Match(models.Model):
     player = models.ForeignKey(User)
