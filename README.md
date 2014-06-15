@@ -1,7 +1,7 @@
 django-highscore
 ================
 
-**Simple Django REST JSON API for Highscores** with OAuth2 authorization. **Important**: In production environment use HTTPS!
+A **Simple Django REST JSON API for Highscores** with OAuth2 authorization. It fits perfectly with your next Android/iOS game. **Important**: In production environment use HTTPS!
 
 Examples
 ========
