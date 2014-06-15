@@ -56,7 +56,7 @@ class RegistrationView(APIView):
 class HighscoreCountView(APIView):
     permission_classes = ()
     def get(self, request):
-        count = Highscore.objects.count()
+        count = Highscore.objects.filter(score__gt = 0).count()
         payload = {'count' : count,
                    'pages' : int(ceil(count / 10.0))}
         return Response(payload)
@@ -68,7 +68,8 @@ class HighscorePagesView(APIView):
     def get(self, request, page):
         start = 10 * int(page)
         end = start + 10
-        highscores = Highscore.objects.order_by('score').reverse()[start:end]
+        greater_zero = Highscore.objects.filter(score__gt = 0)
+        highscores = greater_zero.order_by('score').reverse()[start:end]
         serializer = HighscoreSerializer(highscores, many=True)
         return Response(serializer.data)
 
