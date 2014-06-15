@@ -1,10 +1,10 @@
 django-highscore
 ================
 
-Simple Django Rest API for Highscores with OAuth2 authentication.
+Simple Django REST API for Highscores with OAuth2 authorization.
 
-Dead simple
-===========
+Examples
+========
 
 Get first page of highscore list, ordered best score first.
 
@@ -12,24 +12,28 @@ Get first page of highscore list, ordered best score first.
 
 Register new users on /registration/ 
 
-    curl -X POST -d 'username=jpzk&password=yourguess' http://localhost:8000/registration/
+    curl -X POST -d 'username=jpzk&password=yourguess'\
+    http://localhost:8000/registration/
 
 Get OAuth2 token for user jpzk, which identifies the user:
 
-    curl -X POST -d 'username=jpzk&password=yourguess&grant_type=password&client_id=jpzk' http://localhost:8000/oauth2/access_token/
+    curl -X POST -d 'username=jpzk&password=yourguess&grant_type=password&client_id=jpzk'\
+    http://localhost:8000/oauth2/access_token/
 
 Send match score for user jpzk (highscore is updated when score is greater than the old score):
 
-    curl -X POST -H 'Authorization: bearer <token>' -d 'score=100' http://localhost:8000/user/matches/
+    curl -X POST -H 'Authorization: bearer <token>' -d 'score=100'\
+    http://localhost:8000/user/matches/
 
 Get ranking of user jpzk:
 
-    curl -X GET -H 'Authorization: bearer <token>' http://localhost:8000/user/highscore/ 
+    curl -X GET -H 'Authorization: bearer <token>'\
+    http://localhost:8000/user/highscore/ 
 
 Requirements
 ============
 
-It is tested with the following versions. Add the missing packages to the requirements.txt of your Django project .
+It is tested with the following versions. Add the missing packages to the requirements.txt of your Django project 
 
     django==1.6
     django_oauth2_provider==0.2.6.1
