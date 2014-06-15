@@ -1,7 +1,7 @@
 django-highscore
 ================
 
-Simple Django REST API for Highscores with OAuth2 authorization.
+Simple Django REST JSON API for Highscores with OAuth2 authorization.
 
 Examples
 ========
@@ -69,7 +69,7 @@ Add this to your settings.py of your Django project.
         'highscore'
     )
     
-Add this to your urls.py of your Django project
+Modify your urls.py accordingly:
 
     from django.conf.urls import patterns, include, url
     from django.contrib.auth.models import User, Group
