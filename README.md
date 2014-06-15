@@ -1,34 +1,34 @@
 django-highscore
 ================
 
-Simple Django REST JSON API for Highscores with OAuth2 authorization.
+Simple Django REST JSON API for Highscores with OAuth2 authorization. Important: In production environment use HTTPS!
 
 Examples
 ========
 
 Get first page of highscore list, ordered best score first.
 
-    curl -X GET http://localhost:8000/highscores/0/
+    curl -X GET http:s//localhost:8000/highscores/0/
 
 Register new users on /registration/ 
 
     curl -X POST -d 'username=jpzk&password=yourguess'\
-    http://localhost:8000/registration/
+    https://localhost:8000/registration/
 
 Get OAuth2 token for user jpzk, which identifies the user:
 
     curl -X POST -d 'username=jpzk&password=yourguess&grant_type=password&client_id=jpzk'\
-    http://localhost:8000/oauth2/access_token/
+    https://localhost:8000/oauth2/access_token/
 
 Send match score for user jpzk (highscore is updated when score is greater than the old score):
 
     curl -X POST -H 'Authorization: bearer <token>' -d 'score=100'\
-    http://localhost:8000/user/matches/
+    https://localhost:8000/user/matches/
 
 Get ranking of user jpzk:
 
     curl -X GET -H 'Authorization: bearer <token>'\
-    http://localhost:8000/user/highscore/ 
+    https://localhost:8000/user/highscore/ 
 
 Requirements
 ============
