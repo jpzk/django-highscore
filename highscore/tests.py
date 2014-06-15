@@ -93,6 +93,7 @@ class HighscoresTest(UserAPITestCase):
         response = self.client.get('/user/highscore/')
         self.assertEqual(response.status_code, status.HTTP_200_OK) 
         self.assertEqual(response.data['score'], 1)
+        self.assertEqual(response.data['rank'], 1)
 
     def test_highscores(self):
         self.register(self.user1)
@@ -107,7 +108,31 @@ class HighscoresTest(UserAPITestCase):
 
         response = self.client.get('/highscores/')
         self.assertEqual(response.status_code, status.HTTP_200_OK) 
-        self.assertTrue(len(response.data) == 2) 
+        self.assertEqual(response.data['count'], 2) 
+        self.assertEqual(response.data['pages'], 1)
+
+    def test_highscores_pages(self):
+        self.register(self.user1)
+        self.get_token(self.user1)
+        self.submit_match(1)
+        self.register(self.user2)
+        self.get_token(self.user2)
+        self.submit_match(2)
+
+        # logout
+        self.client.credentials()
+
+        response = self.client.get('/highscores/0/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK) 
+        self.assertEqual(len(response.data), 2)
+
+        e = response.data[0]
+        self.assertEqual(e['player_name'], 'test-user-2')
+        self.assertEqual(e['score'], 2)
+
+        e = response.data[1]
+        self.assertEqual(e['player_name'], 'test-user-1')
+        self.assertEqual(e['score'], 1)
 
 class MatchSubmissionHighscoreTest(UserAPITestCase):
 
