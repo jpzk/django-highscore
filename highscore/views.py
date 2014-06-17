@@ -13,14 +13,17 @@ from rest_framework import status
 from highscore.errors import response, Error
 from highscore.models import Match, Highscore
 from highscore.serializers import HighscoreSerializer
-from highscore.serializers import RegistrationSerializer 
+from highscore.serializers import RegistrationSerializer
 from highscore.serializers import MatchSerializer
 from highscore.serializers import UserSerializer, GroupSerializer
 from highscore.serializers import UserSingleSerializer
 
 class RegistrationView(APIView):
-    """ Allow registration as anonymous user. """
-        
+    """Allow registration, to create new users.
+
+    Default API endpoint: /registration/,
+    url(r'^registration/$', views.RegistrationView.as_view())"""
+
     permission_classes = ()
     def post(self, request, format=None):
         serializer = RegistrationSerializer(data=request.DATA)
@@ -34,7 +37,7 @@ class RegistrationView(APIView):
 
             # Check if unique
             if User.objects.filter(username=username).exists():
-                return Response(response(Error.USERNAME_TAKEN), 
+                return Response(response(Error.USERNAME_TAKEN),
                         bad_request)
 
             u = User.objects.create(username=data['username'])
@@ -54,6 +57,12 @@ class RegistrationView(APIView):
             return Response(serializer.data, status=created)
 
 class HighscoreCountView(APIView):
+    """Return the count of highscores (greater than 0) and
+    the amount of pages.
+
+    Default API endpoint: /highscores/,
+    url(r'^highscores/$', views.HighscoreCountView.as_view())"""
+
     permission_classes = ()
     def get(self, request):
         count = Highscore.objects.filter(score__gt = 0).count()
@@ -62,8 +71,11 @@ class HighscoreCountView(APIView):
         return Response(payload)
 
 class HighscorePagesView(APIView):
-    """ See the global highscore list in pages"""
-    
+    """Return the global highscore list in pages.
+
+    Default API endpoint: /highscores/0/
+    url(r'^highscores/(?P<page>[0-9]*)/$', views.HighscorePage)"""
+
     permission_classes = ()
     def get(self, request, page):
         start = 10 * int(page)
@@ -73,14 +85,17 @@ class HighscorePagesView(APIView):
         serializer = HighscoreSerializer(highscores, many=True)
         return Response(serializer.data)
 
-# User-specific views
-
 class UserHighscoreView(APIView):
-    """ See the player highscore. """
-        
+    """Return the player highscore.
+
+    Default API endpoint: /user/highscore/
+    url(r'^user/highscore/$', views.UserHighscoreView.as_view()"""
+
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
+        """Get the player highscore"""
+
         highscore = Highscore.objects.get(player=request.user.id)
         serializer = HighscoreSerializer(highscore)
 
@@ -90,17 +105,22 @@ class UserHighscoreView(APIView):
         return Response(resp_data)
 
 class UserMatchView(APIView):
-    """ Matches """
-        
+    """Return the matches of a player.
+
+    Default API endpoint: /user/matches/
+    url(r'^user/highscore/$', views.UserHighscoreView.as_view())"""
+
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
+        """Submit a match."""
+
         u = request.DATA
         score = int(u['score'])
         m = Match(player=request.user, score=score)
         m.save()
 
-        # Update the highscore, if score higher than highscore. 
+        # Update the highscore, if score higher than highscore.
         highscore = Highscore.objects.get(player=request.user.id)
         if score > highscore.score:
             highscore.score = score
@@ -109,34 +129,59 @@ class UserMatchView(APIView):
         return Response("", status=status.HTTP_201_CREATED)
 
     def get(self, request):
+        """Get a list of matches of player."""
+
         matches = Match.objects.filter(player=request.user.id)
         serializer = MatchSerializer(matches)
         return Response(serializer.data)
 
 class UserView(APIView):
-    """ User specific information """
-        
+    """Get user-specific details.
+
+    Default API endpoint: /user/,
+    url(r'^user/$', views.UserView.as_view())"""
+
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         user = User.objects.get(pk=request.user.id)
-        serializer = UserSingleSerializer(user) 
+        serializer = UserSingleSerializer(user)
         return Response(serializer.data)
 
-# Only for admins, under /data/
+"""
+# Following views only for administrators.
+
+router = routers.DefaultRouter()
+router.register(r'users', views.UserViewSet)
+router.register(r'groups', views.GroupViewSet)
+router.register(r'matches', views.MatchViewSet)
+router.register(r'highscores', views.HighscoreViewSet)
+
+...
+url(r'^data/', include(router.urls)),
+...
+"""
 
 class HighscoreViewSet(viewsets.ModelViewSet):
+    """Highscore View Set, @see ModelViewSet"""
+
     queryset = Highscore.objects.all()
     serializer_class = HighscoreSerializer
 
 class MatchViewSet(viewsets.ModelViewSet):
+    """Match View Set, @see ModelViewSet"""
+
     queryset = Match.objects.all()
     serializer_class = MatchSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
+    """User View Set, @see ModelViewSet"""
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 class GroupViewSet(viewsets.ModelViewSet):
+    """Group View Set, @see ModelViewSet"""
+
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
