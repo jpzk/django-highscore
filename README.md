@@ -8,7 +8,7 @@ Examples
 
 Get first page of highscore list, ordered best score first.
 
-    curl -X GET http:s//localhost:8000/highscores/0/
+    curl -X GET https://localhost:8000/highscores/0/
 
 Register new users on /registration/ 
 
